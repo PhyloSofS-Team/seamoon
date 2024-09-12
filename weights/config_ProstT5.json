@@ -1,0 +1,53 @@
+{
+    "Data": {
+        "precomputed_path": "data_test/training_data",
+        "training_split_path": "data_test/split/training_list.txt",
+        "validation_split_path": "data_test/split/val_list.txt",
+        "log_dir": "logs/",
+        "num_workers": 4,
+        "noise": 0.0,
+        "max_length": 1000
+    },
+    "Model_Configuration": {
+        "emb_model": "ProstT5",
+        "num_modes_pred": 3,
+        "num_modes_gt": 3
+    },
+    "Loss": {
+        "loss": "L1",
+        "coeff_modes": 1.0,
+        "coeff_torque": 0.0,
+        "allow_permutations": true,
+        "allow_reflections": true,
+        "allow_sign_flip": true,
+        "reweight_centrality": false
+    },
+    "Head": {
+        "head_selection": "ConvHead",
+        "use_bn": false,
+        "in_features": 1024,
+        "kernel_sizes": [
+            1,
+            15,
+            31
+        ],
+        "qr_reg": false,
+        "hidden_sizes": [
+            256 ,
+            128,
+            64 
+        ]
+    },
+    "Training_Configuration": {
+        "optimizer": "Adam",
+        "batch_size": 64,
+        "dropout": 0.8,
+        "nb_epochs": 50,
+        "learning_rate": 0.01,
+        "scheduler_step_size": 100000,
+        "scheduler_gamma": 1.0
+    },
+    "Misc": {
+        "seed": 8
+    }
+}
