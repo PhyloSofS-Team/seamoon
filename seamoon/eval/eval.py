@@ -21,6 +21,13 @@ def evaluate(
     infer_only=False,
     device="cuda",
 ):
+
+    if torque_mode:
+        from seamoon.torque.solver import get_unique_rotations
+        from seamoon.torque.utilities import apply_rotation
+        from wolframclient.evaluation import WolframLanguageSession
+
+        kernel = "/usr/local/Wolfram/WolframEngine/14.0/Executables/WolframKernel"
     params = load_params(config_file)
 
     emb_model = params["Model_Configuration"]["emb_model"]
@@ -81,8 +88,41 @@ def evaluate(
             )
             modes_pred = modes_pred * seq_lengths.sqrt()[:, None, None, None]
             if torque_mode:
-                pass
-                # dan
+                modes_pred = modes_pred.cpu().numpy()
+                seq_lengths = seq_lengths.cpu().numpy()
+                n_structs = modes_pred.shape[0]
+                n_modes_per_struct = modes_pred.shape[1]
+                max_length_batch = modes_pred.shape[2]
+                new_modes_preds = np.zeros(
+                    (n_structs, n_modes_per_struct, 4, max_length_batch, 3)
+                )
+
+                with WolframLanguageSession(kernel) as session:
+                    session.start()
+                    for i in range(n_structs):
+                        ref = torch.reshape(ref, (ref.shape[0], ref.shape[1] // 3, 3))
+                        struct = ref[i][: seq_lengths[i]]
+                        for j in range(n_modes_per_struct):
+                            mode = modes_pred[i, j][: seq_lengths[i]]
+                            rotations = get_unique_rotations(struct, mode, session)
+                            assert (
+                                len(rotations) == 4
+                            ), "We obtained more than 4 rotations, maybe change 1e-3 in the definition of get_unique_rotations"
+                            # rotations : liste de 4 matrices de rotation
+
+                            for k, rot in enumerate(rotations):
+                                new_modes_preds[i, j, k, :] = np.pad(
+                                    apply_rotation(rot, mode),
+                                    ((0, max_length_batch - seq_lengths[i]), (0, 0)),
+                                    "constant",
+                                    constant_values=(0, 0),
+                                )
+
+                seq_lengths = torch.tensor(seq_lengths).int().to(device)
+                modes_pred = torch.tensor(new_modes_preds).float().to(device)
+                modes_pred = modes_pred.reshape(
+                    (n_structs, n_modes_per_struct * 4, max_length_batch, 3)
+                )
 
             if infer_only and not torque_mode:
                 os.makedirs(f"{output_path}/{model_name}", exist_ok=True)
@@ -95,7 +135,29 @@ def evaluate(
                             mode[:seqlen].cpu().numpy(),
                             fmt="%.6f",
                         )
-
+                continue
+            if infer_only and torque_mode:
+                modes_pred = modes_pred.reshape(
+                    (
+                        modes_pred.shape[0],
+                        modes_pred.shape[1] // 4,
+                        4,
+                        modes_pred.shape[2],
+                        modes_pred.shape[3],
+                    )
+                )
+                os.makedirs(f"{output_path}/{model_name}", exist_ok=True)
+                for _, (name, modes, seqlen) in enumerate(
+                    zip(names, modes_pred, seq_lengths)
+                ):
+                    for j, mode in enumerate(modes):
+                        for k, mode_rot in enumerate(mode):
+                            np.savetxt(
+                                f"{output_path}/{model_name}/{name}_mode_{j}_with_min_torque_rot_{k}.txt",
+                                mode_rot[:seqlen].cpu().numpy(),
+                                fmt="%.6f",
+                            )
+                continue
             if not infer_only:
                 eigvects, eigvals, coverage, ref = [
                     batch[key] for key in ("eigvects", "eigvals", "coverage", "ref")
@@ -118,15 +180,19 @@ def evaluate(
                 individual_traces = torch.zeros(
                     (modes_pred.shape[0], modes_pred.shape[1], modes_truth.shape[1])
                 )
-                output_modes = torch.zeros(
-                    (
-                        modes_pred.shape[0],
-                        modes_pred.shape[1],
-                        modes_truth.shape[1],
-                        modes_truth.shape[2],
-                        3,
+                if torque_mode:
+                    output_modes = torch.zeros_like(modes_pred)
+                else:
+                    output_modes = torch.zeros(
+                        (
+                            modes_pred.shape[0],
+                            modes_pred.shape[1],
+                            modes_truth.shape[1],
+                            modes_truth.shape[2],
+                            3,
+                        )
                     )
-                )
+
                 for i in range(modes_pred.shape[1]):
                     for j in range(modes_truth.shape[1]):
 
@@ -164,20 +230,23 @@ def evaluate(
                             )
 
                         c_bi_numerator = (
-                            torch.sum(coverage * mode_truth_j * mode_i, dim=(2, 3))
+                            torch.sum(coverage * mode_truth_j * mode_i, dim=(-2, -1))
                             / seq_lengths[:, None]
                         )
                         c_bi_denominator = (
-                            torch.sum(coverage * mode_i**2, dim=(2, 3))
+                            torch.sum(coverage * mode_i**2, dim=(-2, -1))
                             / seq_lengths[:, None]
                         )
                         c_bi_optimal = c_bi_numerator / c_bi_denominator
                         c_bi_optimal = c_bi_optimal.float()
 
                         mode_i_adjusted = mode_i * c_bi_optimal[:, :, None, None]
-                        output_modes[:, i, j] = (
-                            mode_i_rotated * c_bi_optimal[:, :, None, None]
-                        )
+                        if torque_mode:
+                            output_modes[:, i] = mode_i_adjusted
+                        else:
+                            output_modes[:, i, j] = (
+                                mode_i_rotated * c_bi_optimal[:, :, None, None]
+                            )
                         zero_loss = (
                             torch.sum(
                                 torch.sum(
@@ -199,7 +268,7 @@ def evaluate(
                             torch.sum(
                                 torch.sum(
                                     coverage * ((mode_truth_j - mode_i_adjusted) ** 2),
-                                    dim=(2, 3),
+                                    dim=(-2, -1),
                                 ),
                                 dim=1,
                             )
@@ -209,6 +278,7 @@ def evaluate(
                         individual_loss_all_combinations[:, i, j] = (
                             individual_loss_modes
                         )
+
                 for lossess in individual_loss_all_combinations:
                     if torch.min(lossess) < 0.6:
                         success += 1
@@ -225,13 +295,32 @@ def evaluate(
                         writer = csv.writer(f)
                         writer.writerows(losses)
                     # save the modes
-                    for i in range(num_modes):
-                        for j in range(num_modes):
-                            mode = output_modes[b, i, j]
-                            np.savetxt(
-                                f"{output_path}/{model_name}/{name}_pred_{i}_aligned_on_gt_{j}.txt",
-                                mode[: seq_lengths[b]].cpu().numpy(),
-                                fmt="%.6f",
+                    if torque_mode:
+                        output_modes = output_modes.reshape(
+                            (
+                                output_modes.shape[0],
+                                output_modes.shape[1] // 4,
+                                4,
+                                output_modes.shape[2],
+                                output_modes.shape[3],
                             )
+                        )
+                        for i in range(num_modes):
+                            for j in range(4):
+                                mode = output_modes[b, i, j]
+                                np.savetxt(
+                                    f"{output_path}/{model_name}/{name}_pred_{i}_with_min_torque_rot_{j}.txt",
+                                    mode[: seq_lengths[b]].cpu().numpy(),
+                                    fmt="%.6f",
+                                )
+                    else:
+                        for i in range(num_modes):
+                            for j in range(num_modes):
+                                mode = output_modes[b, i, j]
+                                np.savetxt(
+                                    f"{output_path}/{model_name}/{name}_pred_{i}_aligned_on_gt_{j}.txt",
+                                    mode[: seq_lengths[b]].cpu().numpy(),
+                                    fmt="%.6f",
+                                )
     if not infer_only:
         print(f"total samples: {total_samples}, success: {success}")
