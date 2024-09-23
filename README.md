@@ -1,6 +1,6 @@
 # SeaMoon: Prediction of Molecular Motions Based on Language Models
 
-SeaMoon is a deep learning framework that predicts protein motions from their amino acid sequences. It leverages embeddings of protein language models, such as the sequence-only-based [ESM-2](https://github.com/facebookresearch/esm) ([Lin et al. 2022](https://www.science.org/doi/abs/10.1126/science.ade2574)), the multimodal [ESM3](https://github.com/evolutionaryscale/esm) ([Hayes et al. 2024](https://www.biorxiv.org/content/10.1101/2024.07.01.600583v1)), or the sequence-structure bilingual [ProstT5](https://github.com/mheinzinger/ProstT5) ([Heinzinger et al. 2023](https://www.biorxiv.org/content/10.1101/2023.07.23.550085v2)).
+SeaMoon is a deep learning framework that predicts protein motions from their amino acid sequences. It leverages embeddings of protein language models, such as the sequence-only-based [ESM-2](https://github.com/facebookresearch/esm) ([Lin et al. 2022](https://www.science.org/doi/abs/10.1126/science.ade2574)), the multimodal [ESM3](https://github.com/evolutionaryscale/esm) ([Hayes et al. 2024](https://www.biorxiv.org/content/10.1101/2024.07.01.600583v1)), or the sequence-structure bilingual [ProstT5](https://github.com/mheinzinger/ProstT5) ([Heinzinger et al. 2023](https://www.biorxiv.org/content/10.1101/2023.07.23.550085v2)). Given a query protein sequence, SeaMoon outputs sets of 3D displacements vectors for each C-alpha atom within an invariant subspace, which can be interpreted as **linear motions**.  
 
 ## Quick Start
 
