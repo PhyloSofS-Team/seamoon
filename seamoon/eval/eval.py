@@ -22,7 +22,7 @@ def evaluate(
     device="cuda",
 ):
 
-    if torque_mode:
+    if torque_mode: 
         from seamoon.torque.solver import get_unique_rotations
         from seamoon.torque.utilities import apply_rotation
         from wolframclient.evaluation import WolframLanguageSession

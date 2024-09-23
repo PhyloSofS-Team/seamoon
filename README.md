@@ -19,15 +19,17 @@ SeaMoon is a framework designed to predict molecular linear motions using langua
    pip install -r requirements.txt
    ```
 
+3. If you wish to use **--torque-mode** during inference or evaluation, you will need a working version of the [Wolfram Engine](https://www.wolfram.com/engine/). Make sure to specify the path to your `WolframKernel` at line 30 of `eval.py`. We used Wolfram Engine v14.0.
+
 ### Test Run
 
-A small test dataset of 100 elements is included in `data_set` to validate all main functions. Start by precomputing embeddings:
+A small test dataset of 100 elements is included in `data_set` to validate all main functions. If you wish to precompute all of them, you can use:
 
 ```bash
 python -m seamoon precompute-w-gt
 ```
 
-If you wish to skip precomputing, 10 precomputed elements are provided in data_set/training_data. You can launch the **infer** and **evaluate** directly.
+If you wish to **skip precomputing**, 10 precomputed elements are provided in data_set/training_data. You can launch the **infer** and **evaluate** directly.
 
 - **Infer**:
   ```bash
@@ -39,7 +41,7 @@ If you wish to skip precomputing, 10 precomputed elements are provided in data_s
   python -m seamoon evaluate
   ```
 
-The full dataset from the paper can be downloaded [here]().
+The full dataset from the paper can be downloaded [here]() (soon).
 
 ## Usage
 
@@ -62,7 +64,7 @@ Precompute embeddings using either FASTA or PDB files, with options to specify t
   python -m seamoon precompute-w-gt --prefixes [file-with-prefixes] --bin-dir [binary-dir] --aln-dir [alignment-dir] --output-dir [output-directory] --emb-model [ProstT5|ESM]
   ```
 
-NB:The torque minimization requires a structure file, so use **precompute-from-pdb** if you wish to use it. 
+NB:The torque minimization requires a structure file, so use **precompute-from-pdb** or **precompute-w-gt** if you wish to use it. 
 
 ### Training
 
@@ -81,8 +83,3 @@ python -m seamoon infer --model-path [path-to-model] --config-file [path-to-conf
 ```bash
 python -m seamoon evaluate --model-path [path-to-model] --config-file [path-to-config] --list-path [path-to-list] --precomputed-path [path-to-precomputed-data] --output-path [output-directory] --batch-size [batch-size] --torque-mode [true|false] --device [cuda|cpu]
 ```
-
-## Citation
-
-
-## License
