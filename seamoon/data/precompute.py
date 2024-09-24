@@ -13,11 +13,13 @@ from Bio.SeqUtils import seq1
 import sys
 import argparse
 
+
 def move_to_cpu(data_dict):
     for key, value in data_dict.items():
         if isinstance(value, torch.Tensor) and value.is_cuda:
             data_dict[key] = value.cpu()
     return data_dict
+
 
 def eigss_svd(X):
     # input shape (nb_conf, nb_res*3)
@@ -196,7 +198,7 @@ def precompute_w_gt(
     output_dir,
     emb_model="ProstT5",
     save_w_gaps=False,
-    serialize_on_cpu = True
+    serialize_on_cpu=True,
 ):
     os.makedirs(output_dir, exist_ok=True)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -284,7 +286,9 @@ def precompute_w_gt(
             )
 
 
-def precompute_from_fasta(input_file_or_fasta, output_dir, emb_model="ProstT5",serialize_on_cpu = True):
+def precompute_from_fasta(
+    input_file_or_fasta, output_dir, emb_model="ProstT5", serialize_on_cpu=True
+):
     os.makedirs(output_dir, exist_ok=True)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -356,7 +360,7 @@ def precompute_from_fasta(input_file_or_fasta, output_dir, emb_model="ProstT5",s
         sample_data = {"data": data, "emb": emb}
 
         file_name = seq_name.replace(" ", "_").replace("/", "_")
-        
+
         if serialize_on_cpu:
             sample_data = move_to_cpu(sample_data)
 
@@ -365,7 +369,9 @@ def precompute_from_fasta(input_file_or_fasta, output_dir, emb_model="ProstT5",s
         )
 
 
-def precompute_w_pdb(pdb_file_list, output_dir, emb_model="ProstT5",serialize_on_cpu = True):
+def precompute_w_pdb(
+    pdb_file_list, output_dir, emb_model="ProstT5", serialize_on_cpu=True
+):
     os.makedirs(output_dir, exist_ok=True)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 

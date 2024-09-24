@@ -1,4 +1,5 @@
 import torch
+from tqdm import tqdm
 from seamoon.data.data_set import CustomDataset
 from seamoon.data.data_loader import create_data_loader
 from seamoon.model.neural_net import HEADS
@@ -22,7 +23,7 @@ def evaluate(
     device="cuda",
 ):
 
-    if torque_mode: 
+    if torque_mode:
         from seamoon.torque.solver import get_unique_rotations
         from seamoon.torque.utilities import apply_rotation
         from wolframclient.evaluation import WolframLanguageSession
@@ -46,7 +47,9 @@ def evaluate(
             use_bn=params["Head"]["use_bn"],
         ).to(device)
 
-        model.load_state_dict(torch.load(model_path,map_location=device,weights_only=False))
+        model.load_state_dict(
+            torch.load(model_path, map_location=device, weights_only=False)
+        )
         model.eval()
         dataset = CustomDataset(
             list_path=list_path,
@@ -56,7 +59,7 @@ def evaluate(
         )
         model_name = model_path.split("/")[-2]
         data_loader = create_data_loader(
-            dataset, batch_size=1, num_workers=4, pin_memory=False, noise_std=0
+            dataset, batch_size=1, num_workers=1, pin_memory=False, noise_std=0
         )
         if torque_mode:
             model_name += "_torque"
@@ -65,7 +68,7 @@ def evaluate(
             if not infer_only:
                 success = 0
                 total_samples = 0
-            for batch in data_loader:
+            for batch in tqdm(data_loader):
 
                 emb, seq_lengths, names = [
                     batch[key] for key in ("emb", "seq_lengths", "full_name")
@@ -93,7 +96,7 @@ def evaluate(
                     torch.norm(modes_pred, dim=(-1, -2), keepdim=True)
                 )
                 modes_pred = modes_pred * seq_lengths.sqrt()[:, None, None, None]
-                
+
                 if torque_mode:
                     modes_pred = modes_pred.cpu().numpy()
                     seq_lengths = seq_lengths.cpu().numpy()
@@ -212,9 +215,9 @@ def evaluate(
                                 U, S, V = torch.linalg.svd(prods, full_matrices=False)
                                 trace = torch.sum(S, dim=-1)
 
-                                individual_traces[:, i, j] = torch.sum(S, dim=-1).squeeze(
-                                    -1
-                                )
+                                individual_traces[:, i, j] = torch.sum(
+                                    S, dim=-1
+                                ).squeeze(-1)
 
                                 best_U = U
                                 best_V = V
@@ -234,7 +237,9 @@ def evaluate(
                                 )
 
                             c_bi_numerator = (
-                                torch.sum(coverage * mode_truth_j * mode_i, dim=(-2, -1))
+                                torch.sum(
+                                    coverage * mode_truth_j * mode_i, dim=(-2, -1)
+                                )
                                 / seq_lengths[:, None]
                             )
                             c_bi_denominator = (
@@ -271,7 +276,8 @@ def evaluate(
                             individual_loss_modes = (
                                 torch.sum(
                                     torch.sum(
-                                        coverage * ((mode_truth_j - mode_i_adjusted) ** 2),
+                                        coverage
+                                        * ((mode_truth_j - mode_i_adjusted) ** 2),
                                         dim=(-2, -1),
                                     ),
                                     dim=1,
@@ -292,11 +298,15 @@ def evaluate(
                     os.makedirs(f"{output_path}/{model_name}", exist_ok=True)
                     for b, name in enumerate(names):
                         # save the losses
-                        with open(f"{output_path}/{model_name}/{name}_losses.csv", "w") as f:
+                        with open(
+                            f"{output_path}/{model_name}/{name}_losses.csv", "w"
+                        ) as f:
                             losses = individual_loss_all_combinations[b].cpu().numpy()
                             writer = csv.writer(f)
                             num_cols = losses.shape[1]
-                            header = ['mode_name'] + [f'gt_{i}' for i in range(num_cols)]
+                            header = ["mode_name"] + [
+                                f"gt_{i}" for i in range(num_cols)
+                            ]
                             writer.writerow(header)
                             for i in range(losses.shape[0]):
                                 if torque_mode:

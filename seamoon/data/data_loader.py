@@ -105,7 +105,7 @@ def create_data_loader(
         batch_size=batch_size,
         shuffle=False,
         sampler=sampler,
-        collate_fn=lambda batch: custom_collate_fn(batch),
+        collate_fn=custom_collate_fn,
         num_workers=num_workers,
         pin_memory=pin_memory,
     )

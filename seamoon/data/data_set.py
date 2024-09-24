@@ -25,7 +25,9 @@ class CustomDataset(Dataset):
 
         sample_name = self.sample_names[idx]
         data_path = f"{self.precomputed_path}/{sample_name}_{self.model}_data.pt"
-        sample_data = torch.load(data_path, map_location=torch.device("cpu"),weights_only=False)
+        sample_data = torch.load(
+            data_path, map_location=torch.device("cpu"), weights_only=False
+        )
 
         eigvals = sample_data.get("eigvals", None)
         eigvects = sample_data.get("eigvects", None)
