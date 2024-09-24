@@ -58,13 +58,13 @@ Pre-compute embeddings using either FASTA or PDB files, optionally specifying th
   ```bash
   python -m seamoon precompute-from-pdb --input-files [path-to-pdb-list] --output-dir [output-directory] --emb-model [ProstT5|ESM]
   ```
+This mode allows you to specify a protein 3D structure that may be then used to orient the predicted motions (**--torque-mode**, see below).
 
 - **From DANCE binaries and alignments** (with ground truth to train the model):
   ```bash
   python -m seamoon precompute-w-gt --prefixes [file-with-prefixes] --bin-dir [binary-dir] --aln-dir [alignment-dir] --output-dir [output-directory] --emb-model [ProstT5|ESM]
   ```
-
-For practical usage of the predictions to deform a protein structure, you need to specify a structure file. To do so, please use **precompute-from-pdb** or **precompute-w-gt**. 
+This mode allows you to generate ground-truth data from conformational collections, in addition to the pLM embeddings. 
 
 ### Training
 
