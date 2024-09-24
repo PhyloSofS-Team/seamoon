@@ -46,7 +46,7 @@ def evaluate(
             use_bn=params["Head"]["use_bn"],
         ).to(device)
 
-        model.load_state_dict(torch.load(model_path))
+        model.load_state_dict(torch.load(model_path,map_location=device,weights_only=False))
         model.eval()
         dataset = CustomDataset(
             list_path=list_path,
@@ -93,6 +93,7 @@ def evaluate(
                     torch.norm(modes_pred, dim=(-1, -2), keepdim=True)
                 )
                 modes_pred = modes_pred * seq_lengths.sqrt()[:, None, None, None]
+                
                 if torque_mode:
                     modes_pred = modes_pred.cpu().numpy()
                     seq_lengths = seq_lengths.cpu().numpy()
