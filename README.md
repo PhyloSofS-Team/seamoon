@@ -45,9 +45,9 @@ The full dataset from the paper can be downloaded [here]() (soon).
 
 ## Usage
 
-### Precompute Embeddings
+### Pre-compute Embeddings
 
-Precompute embeddings using either FASTA or PDB files, with options to specify the embedding model:
+Pre-compute embeddings using either FASTA or PDB files, optionally specifying the protein language model:
 
 - **From FASTA**:
   ```bash
@@ -64,7 +64,7 @@ Precompute embeddings using either FASTA or PDB files, with options to specify t
   python -m seamoon precompute-w-gt --prefixes [file-with-prefixes] --bin-dir [binary-dir] --aln-dir [alignment-dir] --output-dir [output-directory] --emb-model [ProstT5|ESM]
   ```
 
-NB:The torque minimization requires a structure file, so use **precompute-from-pdb** or **precompute-w-gt** if you wish to use it. 
+NB: The torque minimization requires a structure file, so use **precompute-from-pdb** or **precompute-w-gt** if you wish to use it. 
 
 ### Training
 
