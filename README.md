@@ -23,20 +23,20 @@ SeaMoon is a deep learning framework that predicts protein motions from their am
 
 ### Test Run
 
-A small test dataset of 100 elements is included in `data_set` to validate all main functions. If you wish to precompute all of them, you can use:
+A small test dataset of 100 input samples is included in `data_set` to validate all main functions. If you wish to generate ground truth data and pre-compute embeddings (ProstT5 by default) for all of them, you can use:
 
 ```bash
 python -m seamoon precompute-w-gt
 ```
 
-If you wish to **skip precomputing**, 10 precomputed elements are provided in data_set/training_data. You can launch the **infer** and **evaluate** directly.
+If you wish to **skip pre-computing**, pre-computed data for 10 input samples are provided in data_set/training_data. You can launch SeaMoon inference (**infer**) and prediction evaluation (**evaluate**) directly on them.
 
-- **Infer**:
+- **Infer** -- predict motion tensors (3 by default) from the input embeddings:
   ```bash
   python -m seamoon infer
   ```
 
-- **Evaluate**:
+- **Evaluate** -- optimally align all predictions against all ground-truth principal components and compute the normalised errors:
   ```bash
   python -m seamoon evaluate
   ```
