@@ -19,7 +19,7 @@ SeaMoon is a deep learning framework that predicts protein motions from their am
    pip install -r requirements.txt
    ```
 
-3. If you wish to use **--torque-mode** during inference or evaluation, you will need a working version of the [Wolfram Engine](https://www.wolfram.com/engine/). Make sure to specify the path to your `WolframKernel` at line 30 of `eval.py`. We used Wolfram Engine v14.0.
+3. If you wish to use **--torque-mode** (see below) during inference or evaluation, you will need a working version of the [Wolfram Engine](https://www.wolfram.com/engine/). Make sure to specify the path to your `WolframKernel` at line 30 of `eval.py`. We used Wolfram Engine v14.0.
 
 ### Test Run
 
@@ -64,7 +64,7 @@ Pre-compute embeddings using either FASTA or PDB files, optionally specifying th
   python -m seamoon precompute-w-gt --prefixes [file-with-prefixes] --bin-dir [binary-dir] --aln-dir [alignment-dir] --output-dir [output-directory] --emb-model [ProstT5|ESM]
   ```
 
-NB: The torque minimization requires a structure file, so use **precompute-from-pdb** or **precompute-w-gt** if you wish to use it. 
+For practical usage of the predictions to deform a protein structure, you need to specify a structure file. To do so, please use **precompute-from-pdb** or **precompute-w-gt**. 
 
 ### Training
 
@@ -77,9 +77,11 @@ python -m seamoon train --config-path [path-to-config-file]
 ```bash
 python -m seamoon infer --model-path [path-to-model] --config-file [path-to-config] --list-path [path-to-list] --precomputed-path [path-to-precomputed-data] --output-path [output-directory] --batch-size [batch-size] --torque-mode [true|false] --device [cuda|cpu]
 ```
+By default, the predicted motion tensors will have arbitrary orientations. Set the **--torque-mode** option to True if you want to align them with respect to a 3D structure. This orientation procedure will produce four solutions that minimize the torque of the structure under the predicted motion. 
 
 ### Evaluation
 
 ```bash
 python -m seamoon evaluate --model-path [path-to-model] --config-file [path-to-config] --list-path [path-to-list] --precomputed-path [path-to-precomputed-data] --output-path [output-directory] --batch-size [batch-size] --torque-mode [true|false] --device [cuda|cpu]
 ```
+By default, the predicted motion tensors will be optimally aligned with the known ground-truth principal components prior to computing the errors. Set the **--torque-mode** option to True if you want to compute the errors directly from the predictions oriented through torque minimisation. 
