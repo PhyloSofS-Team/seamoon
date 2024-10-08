@@ -41,7 +41,7 @@ If you wish to **skip pre-computing**, pre-computed data for 10 input samples ar
   python -m seamoon evaluate
   ```
 
-The full dataset from the paper can be downloaded [here]() (soon).
+The full dataset from the paper can be downloaded [here](https://zenodo.org/records/13833309).
 
 ## Usage
 
