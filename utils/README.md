@@ -1,4 +1,4 @@
-<h3>The directory contains useful scripts and data.</h3>
+<h3>The directory contains scripts and data about model training and evaluation.</h3>
 
 <h3>splits</h3>
 The files <i>list_train.csv</i>, <i>list_trainx5.csv</i>, <i>list_val.csv</i>, and <i>list_test.csv</i> give the list of collections used for training (base set or augmented set), validating and testing SeaMoon. Each line corresponds to a collection, specified by its identifier (first column) and the query protein used as reference (second column). In the augmented training set, some samples contain the same conformations. For instance, 1A3RL_1SBSL and 1A3RL_7DCXH share the same set of conformations; they differ by the conformation used as reference for inferring the ground-truth motions, either 1SBSL or 7DCXH.   
