@@ -3,7 +3,6 @@ import numpy as np
 import random
 import os
 
-# Charger le CSV
 def filter_and_split_data(input_csv, output_dir='./output', seed=42):
     """
     Filter the input CSV, a summary statistics table output by DANCE,
@@ -110,7 +109,6 @@ def filter_and_split_data(input_csv, output_dir='./output', seed=42):
         outfile.write("\n".join(test_ids))
 
     filtered_df.to_csv(filtered_output, index=False)
-    
 
 if __name__ == "__main__":
     import argparse
