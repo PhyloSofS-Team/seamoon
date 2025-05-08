@@ -12,7 +12,7 @@ The file <i>cath_test_all.csv</i> indicates the annotated CATH topologies and su
 The file <i>imod_bench_info.txt</i> gives information about the test proteins from the iMod benchmark.  
 
 <h3>results</h3>
-The files <i>*over_rand.csv</i> give the NSSE for the best matching pairs (partial assignment problem) of predicted and ground-truth motions, for each test protein and for each method (NMA or version of SeaMoon). 
+The seven CSV files give the NSSE for the best matching pairs of predicted and ground-truth motions, for each test protein and for each method considered, namely the six versions of SeaMoon and the NMA. To identify the best-matching pair, we solve a partial assignment problem, with the constraint that a prediction cannot be paired with more than one ground-truth motion. 
 
 <h3>scripts</h3>
 The script <i>filter_and_split.py</i> takes as input a summary statistics file from DANCE and create train, validation, and test sets. The script applies filtering criteria and then randomly splits the resulting subset into 75% for training, 15% for validation and 15% for testing.   
