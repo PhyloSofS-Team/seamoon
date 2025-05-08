@@ -143,7 +143,7 @@ computeColl<-function(mode){
 # perform paired Wilcoxon ranked signed test between pairs of methods (reduced version)
 computePval<-function(){
 
-	methods = c("esm_test_3v3_1ref","esm_test_3v3_5ref","t5_test_3v3_1ref","t5_test_3v3_5ref","nolb_test")
+	methods = c("esm_test_3v3_1ref","esm_test_3v3_5ref","t5_test_3v3_1ref","t5_test_3v3_5ref","nolb_hopma")
 	n = length(methods)
 	print(c("there are",n,"methods"))
 	pvalMat = matrix(nc=n,nr=n)
@@ -190,7 +190,7 @@ plotCumLoss_all_cath<-function(cutoff=0.6){
 	# get the folds assigned to the test proteins
 	cath_test_all_folds = merge(cath_test_all,cath_train_topol_stats,by.x="topology",by.y="topology")
 
-	methods = c("esm_test_3v3_1ref","esm_test_3v3_5ref","esm3_test_3v3_1ref","esm3_test_3v3_5ref","t5_test_3v3_1ref","t5_test_3v3_5ref","nolb_test")
+	methods = c("esm_test_3v3_1ref","esm_test_3v3_5ref","esm3_test_3v3_1ref","esm3_test_3v3_5ref","t5_test_3v3_1ref","t5_test_3v3_5ref","nolb_hopma")
 	meth_names = c("SeaMoon-ESM2","SeaMoon-ESM2(x5)","SeaMoon-ESM3","SeaMoon-ESM3(x5)","SeaMoon-ProstT5","SeaMoon-ProstT5(x5)","Normal Mode Analysis (NOLB)")
 	ltyp = c(rep(c("longdash","solid"),3),"solid")
 	lwd = c(rep(c(1,1.5),3),1.5)
@@ -257,7 +257,7 @@ plotCumLoss_all_cath<-function(cutoff=0.6){
 # plot the cummulative SSE curves
 plotCumLoss_all<-function(setup,cutoff=0.6,seltm=1.2,selid=1.2){
 
-	methods = c("esm_test_3v3_1ref","esm_test_3v3_5ref","esm3_test_3v3_1ref","esm3_test_3v3_5ref","t5_test_3v3_1ref","t5_test_3v3_5ref","nolb_test")
+	methods = c("esm_test_3v3_1ref","esm_test_3v3_5ref","esm3_test_3v3_1ref","esm3_test_3v3_5ref","t5_test_3v3_1ref","t5_test_3v3_5ref","nolb_hopma")
 	meth_names = c("SeaMoon-ESM2","SeaMoon-ESM2(x5)","SeaMoon-ESM3","SeaMoon-ESM3(x5)","SeaMoon-ProstT5","SeaMoon-ProstT5(x5)","Normal Mode Analysis (NOLB)")
 	ltyp = c(rep(c("longdash","solid"),3),"solid")
 	lwd = c(rep(c(1,1.5),3),1.5)
@@ -338,8 +338,8 @@ plotCumLoss_all<-function(setup,cutoff=0.6,seltm=1.2,selid=1.2){
 # and compute how many have a certain quality range with method Y
 plotBarsIntercept<-function(n_test=1121){
 	
-	#methods = c("esm_test_3v3_5ref","esm3_test_3v3_5ref","t5_test_3v3_5ref","nolb_test")
-	methods = c("esm_test_3v3_5ref","t5_test_3v3_5ref","nolb_test")
+	#methods = c("esm_test_3v3_5ref","esm3_test_3v3_5ref","t5_test_3v3_5ref","nolb_hopma")
+	methods = c("esm_test_3v3_5ref","t5_test_3v3_5ref","nolb_hopma")
 	print(c("there are",length(methods),"methods"))
 	combi = list(c(1,3),c(3,1),c(2,3),c(3,2))
 	#combi = list(c(4,1),c(4,2),c(4,3))
@@ -457,7 +457,7 @@ logpvalue<-function(pval){
 # test for enrichment or depletion in different categories of collectivity
 getEnrich_coll<-function(cutoff=0.6){
 
-	methods = c("esm_test_3v3_5ref","esm3_test_3v3_5ref","t5_test_3v3_5ref","nolb_test")
+	methods = c("esm_test_3v3_5ref","esm3_test_3v3_5ref","t5_test_3v3_5ref","nolb_hopma")
 	meth_names = c("ESM2\n(x5)","ESM3\n(x5)","ProstT5\n(x5)","NMA")
 	coll_test = as.matrix(read.table("coll_test.csv",head=TRUE,sep=";"))
 	coll_test_cat = coll_test
@@ -516,7 +516,7 @@ getEnrich_coll<-function(cutoff=0.6){
 # perform bootstrap simulations for stability analysis
 compute_success_rate<-function(N=1000){
 
-	methods = c("esm_test_3v3_5ref","esm3_test_3v3_5ref","t5_test_3v3_5ref","nolb_test")
+	methods = c("esm_test_3v3_5ref","esm3_test_3v3_5ref","t5_test_3v3_5ref","nolb_hopma")
 	meth_names = c("SeaMoon-ESM2(x5)","SeaMoon-ESM3(x5)","SeaMoon-ProstT5(x5)","Normal Mode Analysis (NOLB)")
 
 	M = length(meth_names)
@@ -794,7 +794,7 @@ plotNMAErrorDensity<-function(methods=c("esm_test_3v3_5ref","t5_test_3v3_5ref"),
 	dat1 = filter_dat(methods[1],cutoff)
 	dat2 = filter_dat(methods[2],cutoff)[c("prot","err")]
 	dat = merge(dat1,dat2,by.x="prot",by.y="prot")
-	datNMA = filter_dat("nolb_test",cutoff)[c("prot","err")]
+	datNMA = filter_dat("nolb_hopma",cutoff)[c("prot","err")]
 	dat = merge(dat,datNMA,by.x="prot",by.y="prot")
 
 	sel_low=dat[,"err.x"]<0.25&dat[,"err.y"]<0.25
@@ -826,7 +826,7 @@ plotScatter2Methods<-function(methods,cutoff=0.6){
 	dat = merge(dat1,dat2,by.x="prot",by.y="prot")
 	print(cor(dat[,"err.x"],dat[,"err.y"]))
 	print(cor(dat[,"err.x"]-dat[,"err.y"],dat[,"nb_members"]))
-	datNMA = filter_dat("nolb_test",cutoff)[c("prot","err")]
+	datNMA = filter_dat("nolb_hopma",cutoff)[c("prot","err")]
 	dat = merge(dat,datNMA,by.x="prot",by.y="prot")
 	print(dat[1,])
 	print(dim(dat))
