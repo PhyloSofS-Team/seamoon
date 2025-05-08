@@ -154,7 +154,7 @@ computePval<-function(){
 	for(i in 1:n){
 		method = methods[i]
 		print(method)
-		dat = read.table(paste0(method,"_over_rand.csv"),sep=",",head=TRUE)
+		dat = read.table(paste0(method,".csv"),sep=",",head=TRUE)
 		dat_reduced = dat%>%group_by(prot)%>%filter(err==min(err))
 		print(dim(dat_reduced))
 		preds[[i]] = unlist(dat_reduced[,"err"])
@@ -351,7 +351,7 @@ plotBarsIntercept<-function(n_test=1121){
 	for(i in 1:length(methods)){
 		method = methods[i]
 		print(method)
-		dat = read.table(paste0(method,"_over_rand.csv"),sep=",",head=TRUE)
+		dat = read.table(paste0(method,".csv"),sep=",",head=TRUE)
 		dat = dat[order(dat[,"err"]),]
 		# reduce by taking the min error per protein
 		dat_reduced[[i]] = dat%>%group_by(prot)%>%filter(err==min(err))
@@ -406,7 +406,7 @@ plotBarsIntercept<-function(n_test=1121){
 # for a given method and filter based on the error
 filter_dat_wKpax<-function(method,cutoff=0.6){
 
-	pred = read.table(paste0(method,"_over_rand.csv"),sep=",",head=TRUE)
+	pred = read.table(paste0(method,".csv"),sep=",",head=TRUE)
 	pred_reduced = pred%>%group_by(prot)%>%filter(err==min(err))
 	stats_test = read.table("stats_test.csv",sep=",",head=TRUE)
 	dat= merge(pred_reduced,stats_test,by.x="prot",by.y="name_file")
@@ -424,7 +424,7 @@ filter_dat_wKpax<-function(method,cutoff=0.6){
 # for a given method and filter based on the error
 filter_dat<-function(method,cutoff=0.6){
 
-	pred = read.table(paste0(method,"_over_rand.csv"),sep=",",head=TRUE)
+	pred = read.table(paste0(method,".csv"),sep=",",head=TRUE)
 	pred_reduced = pred%>%group_by(prot)%>%filter(err==min(err))
 	stats_test = read.table("stats_test.csv",sep=",",head=TRUE)
 	dat= merge(pred_reduced,stats_test,by.x="prot",by.y="name_file")
@@ -475,7 +475,7 @@ getEnrich_coll<-function(cutoff=0.6){
 	myPval = c()
 	for(k in 1:length(methods)){
 		method = methods[k]
-		pred = read.table(paste0(method,"_over_rand.csv"),sep=",",head=TRUE)
+		pred = read.table(paste0(method,".csv"),sep=",",head=TRUE)
 		kappa = c()
 		for(i in 1:dim(pred)[[1]]){
 			kappa = c(kappa, coll_test[pred[i,"prot"],pred[i,"gt"]])
@@ -675,7 +675,7 @@ plotiMod<-function(setup=1){
 # for a given method and filter based on the error
 filter_dat_wColl<-function(method,cutoff=0.6){
 
-	pred = read.table(paste0(method,"_over_rand.csv"),sep=",",head=TRUE)
+	pred = read.table(paste0(method,".csv"),sep=",",head=TRUE)
 	coll_test = read.table("coll_test.csv",head=TRUE,sep=";")
 	kappa = c()
 	neff = c()
